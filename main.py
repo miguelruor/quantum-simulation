@@ -63,7 +63,7 @@ if __name__ == "__main__":
     names = ['four_phen', 'musculus', 'neurospora', 'arabidopsis']
 
     if job_index < 1000:
-        gspace_name = names[0]
+        gspace_name = names[1]
     elif job_index < 2000:
         gspace_name = names[2]
     elif job_index < 3000:
