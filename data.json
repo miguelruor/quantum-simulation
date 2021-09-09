@@ -1,0 +1,22 @@
+{
+  "arabidopsis":{
+    "g-space": "arabidopsis.gml",
+    "phenotypes": "phenotypes_arabidopsis.txt",
+    "g-networks": "gn_arabidopsis.json"
+  }, 
+  "musculus":{
+    "g-space": "musculus.gml",
+    "phenotypes": "phenotypes_musculus.txt",
+    "g-networks": "gn_musculus.json"
+  },
+  "neurospora":{
+    "g-space": "neurospora.gml",
+    "phenotypes": "phenotypes_neurospora.txt",
+    "g-networks": "gn_neurospora.json"
+  },
+  "four_phen":{
+    "g-space": "four_phen.gml",
+    "phenotypes": "phenotypes_four_phen.txt",
+    "g-networks": "gn_four_phen.json"
+  }
+}
