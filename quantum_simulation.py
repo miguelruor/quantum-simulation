@@ -62,7 +62,7 @@ def simulation_qw(gspace, gspace_name, phenotypes, initial_genotype, max_simulat
   phenotypes_actual_state = gspace.nodes[actual_state]['phenotypeName'] # phenotypes of actual state
 
   # Start of simulation
-  while time < max_simulation_time:
+  while time < max_simulation_time and timing.time()-start <= 31000:
     for phen in phenotypes_actual_state:
       if tau[phen] < 0: # update hitting times of novel phenotypes
         tau[phen] = time
