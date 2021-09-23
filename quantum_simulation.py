@@ -108,6 +108,7 @@ def simulation_qw(gspace, gspace_name, phenotypes, initial_genotype, max_simulat
   simulation.total_measurements = no_measurement
   simulation.total_mutations = total_mutations
   simulation.computing_time = end-start
+  simulation.simulation_time = time
 
   for phen in phenotypes:
     setattr(simulation, 'tau_'+phen, tau[phen] if tau[phen]>=0.0 else time)
