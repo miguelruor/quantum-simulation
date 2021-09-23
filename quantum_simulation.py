@@ -6,6 +6,7 @@ from ibmcloudant.cloudant_v1 import CloudantV1, Document
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 import os
 import time as timing
+from datetime import datetime
 
 def giveMeHamiltonian(G, gamma, typeMatrix="laplacian"):
   # typeMatrix could be "adjacency" to use the adjacency matrix based Hamiltoninan 
@@ -37,6 +38,7 @@ def measurement(state, basis):
 
 def simulation_qw(gspace, gspace_name, phenotypes, initial_genotype, max_simulation_time, measurement_rate, gamma):
   start = timing.time()
+  date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
   # initial data
 
@@ -109,6 +111,7 @@ def simulation_qw(gspace, gspace_name, phenotypes, initial_genotype, max_simulat
   simulation.total_mutations = total_mutations
   simulation.computing_time = end-start
   simulation.simulation_time = time
+  simulation.datetime = date
 
   for phen in phenotypes:
     setattr(simulation, 'tau_'+phen, tau[phen] if tau[phen]>=0.0 else time)
