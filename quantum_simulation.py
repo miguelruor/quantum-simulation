@@ -36,7 +36,7 @@ def measurement(state, basis):
 
   return collapse
 
-def simulation_qw(gspace, gspace_name, phenotypes, initial_genotype, max_simulation_time, measurement_rate, gamma):
+def simulation_qw(gspace, gspace_name, phenotypes, initial_genotype, max_simulation_time, max_execution_time, measurement_rate, gamma):
   start = timing.time()
   date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
@@ -64,7 +64,7 @@ def simulation_qw(gspace, gspace_name, phenotypes, initial_genotype, max_simulat
   phenotypes_actual_state = gspace.nodes[actual_state]['phenotypeName'] # phenotypes of actual state
 
   # Start of simulation
-  while time < max_simulation_time and timing.time()-start <= 31000:
+  while time < max_simulation_time and timing.time()-start <= max_execution_time:
     for phen in phenotypes_actual_state:
       if tau[phen] < 0: # update hitting times of novel phenotypes
         tau[phen] = time

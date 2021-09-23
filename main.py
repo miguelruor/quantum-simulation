@@ -83,7 +83,8 @@ if __name__ == "__main__":
 
     initial_genotype = initial_nodes[job_index%len(initial_nodes)]
     max_simulation_time = quantum_parameters['max_time'] 
+    max_execution_time = quantum_parameters['max_execution_time']
     measurement_rate = quantum_parameters['decoherence_time']
     gamma_q = quantum_parameters['transition_rate']
     
-    quantum_simulation.simulation_qw(gspace, gspace_name, phenotypes, initial_genotype, max_simulation_time, measurement_rate, gamma_q)
+    quantum_simulation.simulation_qw(gspace, gspace_name, phenotypes, initial_genotype, max_simulation_time, max_execution_time, measurement_rate, gamma_q)
