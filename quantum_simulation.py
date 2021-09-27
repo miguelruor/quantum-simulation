@@ -97,7 +97,10 @@ def simulation_qw(gspace, gspace_name, phenotypes, initial_genotype, max_simulat
   cloudant = CloudantV1(authenticator=authenticator)
   cloudant.set_service_url(os.environ['CLOUDANT_URL'])
 
-  client = cloudant.new_instance()
+  try:
+    client = cloudant.new_instance()
+  except:
+    print("Could not create a cloudant client")
 
   simulation: Document = Document()
 
