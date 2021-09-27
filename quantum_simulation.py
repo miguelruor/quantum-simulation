@@ -118,11 +118,15 @@ def simulation_qw(gspace, gspace_name, phenotypes, initial_genotype, max_simulat
     setattr(simulation, 'N_'+phen, N[phen])
     setattr(simulation, 'mutations_'+phen, mutations[phen])
 
-  client.post_document(
-    db="simulations-"+gspace_name,
-    document=simulation
-  )
+  try:
+    client.post_document(
+      db="simulations-"+gspace_name,
+      document=simulation
+    )
+    print("Wrote in Cloudant successfully")
 
+  except:
+    print("Unexpected error")
   
 
     
