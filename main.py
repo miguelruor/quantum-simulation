@@ -86,5 +86,8 @@ if __name__ == "__main__":
     max_execution_time = quantum_parameters['max_execution_time']
     measurement_rate = quantum_parameters['decoherence_time']
     gamma_q = quantum_parameters['transition_rate']
+    first_checkpoint = quantum_parameters['first_checkpoint']
+    waiting_for_checkpoint = quantum_parameters['waiting_for_checkpoint']
     
-    quantum_simulation.simulation_qw(gspace, gspace_name, phenotypes, initial_genotype, max_simulation_time, max_execution_time, measurement_rate, gamma_q)
+    quantum_simulation.simulation_qw(gspace, gspace_name, phenotypes, initial_genotype, max_simulation_time, measurement_rate, gamma_q, 
+        max_execution_time, first_checkpoint, waiting_for_checkpoint)

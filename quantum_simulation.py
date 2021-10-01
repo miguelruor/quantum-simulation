@@ -7,6 +7,7 @@ from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 import os
 import time as timing
 from datetime import datetime
+import uuid
 
 def giveMeHamiltonian(G, gamma, typeMatrix="laplacian"):
   # typeMatrix could be "adjacency" to use the adjacency matrix based Hamiltoninan 
@@ -36,7 +37,9 @@ def measurement(state, basis):
 
   return collapse
 
-def simulation_qw(gspace, gspace_name, phenotypes, initial_genotype, max_simulation_time, max_execution_time, measurement_rate, gamma):
+def simulation_qw(gspace, gspace_name, phenotypes, initial_genotype, max_simulation_time, 
+  measurement_rate, gamma, max_execution_time, first_checkpoint, waiting_for_checkpoint):
+
   start = timing.time()
   date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
@@ -53,6 +56,31 @@ def simulation_qw(gspace, gspace_name, phenotypes, initial_genotype, max_simulat
   time = 0
   total_mutations = 0
   #mutation_time = 0
+
+  checkpoint = 0
+
+  _id = uuid.uuid1()
+
+  # database connection
+  authenticator = IAMAuthenticator(os.environ['CLOUDANT_APIKEY'])
+
+  cloudant = CloudantV1(authenticator=authenticator)
+  cloudant.set_service_url(os.environ['CLOUDANT_URL'])
+
+  try:
+    client = cloudant.new_instance()
+  except:
+    print("Could not create a cloudant client")
+
+  simulation: Document = Document()
+  simulation.initial_gen_index = initial_genotype
+  simulation._id = _id
+  simulation.initial_gen = gspace.nodes[initial_genotype]['sequence']
+  simulation.initial_phen = gspace.nodes[initial_genotype]['phenotypeName'][0]
+  simulation.measurement_rate = measurement_rate
+  simulation.transition_rate = gamma
+  simulation.max_simulation_time = max_simulation_time
+  simulation.datetime = date
 
   #initialization
   for phen in phenotypes:
@@ -87,52 +115,34 @@ def simulation_qw(gspace, gspace_name, phenotypes, initial_genotype, max_simulat
 
     # phenotypes of actual state
     phenotypes_actual_state = gspace.nodes[actual_state]['phenotypeName']
-      
-  # End of simulation
-  end = timing.time()
 
-  # database connection
-  authenticator = IAMAuthenticator(os.environ['CLOUDANT_APIKEY'])
+    if time >= first_checkpoint + checkpoint*waiting_for_checkpoint:
+      checkpoint += 1
 
-  cloudant = CloudantV1(authenticator=authenticator)
-  cloudant.set_service_url(os.environ['CLOUDANT_URL'])
+      end = timing.time()
 
-  try:
-    client = cloudant.new_instance()
-  except:
-    print("Could not create a cloudant client")
+      simulation.total_measurements = no_measurement
+      simulation.total_mutations = total_mutations
+      simulation.computing_time = end-start
+      simulation.simulation_time = time
 
-  simulation: Document = Document()
+      for phen in phenotypes:
+        setattr(simulation, 'tau_'+phen, tau[phen] if tau[phen]>=0.0 else time)
+        setattr(simulation, 'N_'+phen, N[phen])
+        setattr(simulation, 'mutations_'+phen, mutations[phen])
 
-  simulation.initial_gen_index = initial_genotype
-  simulation.initial_gen = gspace.nodes[initial_genotype]['sequence']
-  simulation.initial_phen = gspace.nodes[initial_genotype]['phenotypeName'][0]
-  simulation.measurement_rate = measurement_rate
-  simulation.transition_rate = gamma
-  simulation.max_simulation_time = max_simulation_time
-  simulation.total_measurements = no_measurement
-  simulation.total_mutations = total_mutations
-  simulation.computing_time = end-start
-  simulation.simulation_time = time
-  simulation.datetime = date
+      try:
+        client.post_document(
+          db="simulations-"+gspace_name,
+          document=simulation
+        )
+        print(f"Wrote in Cloudant successfully: {checkpoint+1} checkpoint")
 
-  for phen in phenotypes:
-    setattr(simulation, 'tau_'+phen, tau[phen] if tau[phen]>=0.0 else time)
-    setattr(simulation, 'N_'+phen, N[phen])
-    setattr(simulation, 'mutations_'+phen, mutations[phen])
+      except:
+        print("Unexpected error")
 
-  try:
-    client.post_document(
-      db="simulations-"+gspace_name,
-      document=simulation
-    )
-    print("Wrote in Cloudant successfully")
-
-  except:
-    print("Unexpected error")
+  # end of simulation
   
-
-    
   # writing results of simulation  
   #evolution_paths.to_csv(url_evolution_paths)
   #simulation_results.to_csv(url_simulation_results)
