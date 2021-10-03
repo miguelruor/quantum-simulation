@@ -116,7 +116,7 @@ def simulation_qw(gspace, gspace_name, phenotypes, initial_genotype, max_simulat
     # phenotypes of actual state
     phenotypes_actual_state = gspace.nodes[actual_state]['phenotypeName']
 
-    if time >= first_checkpoint + checkpoint*waiting_for_checkpoint:
+    if timing.time()-start >= first_checkpoint + checkpoint*waiting_for_checkpoint:
       checkpoint += 1
 
       end = timing.time()
