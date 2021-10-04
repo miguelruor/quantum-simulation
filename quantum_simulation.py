@@ -59,7 +59,7 @@ def simulation_qw(gspace, gspace_name, phenotypes, initial_genotype, max_simulat
 
   checkpoint = 0
 
-  _id = uuid.uuid1()
+  _id = str(uuid.uuid1())
 
   # database connection
   authenticator = IAMAuthenticator(os.environ['CLOUDANT_APIKEY'])
@@ -72,9 +72,8 @@ def simulation_qw(gspace, gspace_name, phenotypes, initial_genotype, max_simulat
   except:
     print("Could not create a cloudant client")
 
-  simulation: Document = Document()
+  simulation: Document = Document(id = _id)
   simulation.initial_gen_index = initial_genotype
-  simulation._id = _id
   simulation.initial_gen = gspace.nodes[initial_genotype]['sequence']
   simulation.initial_phen = gspace.nodes[initial_genotype]['phenotypeName'][0]
   simulation.measurement_rate = measurement_rate
@@ -91,7 +90,7 @@ def simulation_qw(gspace, gspace_name, phenotypes, initial_genotype, max_simulat
   actual_state = initial_genotype 
   phenotypes_actual_state = gspace.nodes[actual_state]['phenotypeName'] # phenotypes of actual state
 
-  print("Starting simulation")
+  print("Starting simulation with id:", _id)
   while time < max_simulation_time and timing.time()-start <= max_execution_time:
     for phen in phenotypes_actual_state:
       if tau[phen] < 0: # update hitting times of novel phenotypes
@@ -130,15 +129,17 @@ def simulation_qw(gspace, gspace_name, phenotypes, initial_genotype, max_simulat
         setattr(simulation, 'mutations_'+phen, mutations[phen])
 
       try:
-        client.post_document(
+        update_document_response = client.post_document(
           db="simulations-"+gspace_name,
           document=simulation
-        )
-        print(f"Wrote in Cloudant successfully: {checkpoint+1} checkpoint")
+        ).get_result()
+        
+        simulation.rev = update_document_response["rev"]
+        print(f"Wrote in Cloudant successfully: checkpoint {checkpoint+1}. Revision {simulation.rev}")
         checkpoint += 1
 
-      except:
-        print(f"Unexpected error with checkpoint {checkpoint+1}. Could not write in Cloudant")
+      except Exception as e:
+        print(f"Unexpected error with checkpoint {checkpoint+1}. Could not write in Cloudant: {e}")
 
   print("End of simulation")
   
