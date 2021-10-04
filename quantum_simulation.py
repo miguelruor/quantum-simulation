@@ -91,7 +91,7 @@ def simulation_qw(gspace, gspace_name, phenotypes, initial_genotype, max_simulat
   actual_state = initial_genotype 
   phenotypes_actual_state = gspace.nodes[actual_state]['phenotypeName'] # phenotypes of actual state
 
-  # Start of simulation
+  print("Starting simulation")
   while time < max_simulation_time and timing.time()-start <= max_execution_time:
     for phen in phenotypes_actual_state:
       if tau[phen] < 0: # update hitting times of novel phenotypes
@@ -117,8 +117,6 @@ def simulation_qw(gspace, gspace_name, phenotypes, initial_genotype, max_simulat
     phenotypes_actual_state = gspace.nodes[actual_state]['phenotypeName']
 
     if timing.time()-start >= first_checkpoint + checkpoint*waiting_for_checkpoint:
-      checkpoint += 1
-
       end = timing.time()
 
       simulation.total_measurements = no_measurement
@@ -137,11 +135,12 @@ def simulation_qw(gspace, gspace_name, phenotypes, initial_genotype, max_simulat
           document=simulation
         )
         print(f"Wrote in Cloudant successfully: {checkpoint+1} checkpoint")
+        checkpoint += 1
 
       except:
-        print("Unexpected error")
+        print(f"Unexpected error with checkpoint {checkpoint+1}. Could not write in Cloudant")
 
-  # end of simulation
+  print("End of simulation")
   
   # writing results of simulation  
   #evolution_paths.to_csv(url_evolution_paths)
