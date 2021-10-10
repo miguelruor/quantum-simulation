@@ -62,14 +62,18 @@ if __name__ == "__main__":
 
     names = ['four_phen', 'musculus', 'neurospora', 'arabidopsis']
 
-    if job_index < 1000:
+    if job_index < 10000:
         gspace_name = names[1]
-    elif job_index < 2000:
+        initial_node_index = job_index//1000
+    elif job_index < 20000:
         gspace_name = names[2]
-    elif job_index < 3000:
+        initial_node_index = (job_index-10000)//1000
+    elif job_index < 30000:
         gspace_name = names[3]
+        initial_node_index = (job_index-20000)//1000
     else:
         gspace_name = names[0]
+        initial_node_index = (job_index-30000)//1000
 
     gspace_file = get_item("general-data", data[gspace_name]['g-space']).decode("utf8")
 
@@ -81,7 +85,7 @@ if __name__ == "__main__":
     genotype_networks =json.loads(get_item("general-data", data[gspace_name]["g-networks"]).decode("utf8"))
     initial_nodes = quantum_parameters['initial_nodes'][gspace_name]
 
-    initial_genotype = initial_nodes[job_index%len(initial_nodes)]
+    initial_genotype = initial_nodes[initial_node_index]
     max_simulation_time = quantum_parameters['max_time'] 
     max_execution_time = quantum_parameters['max_execution_time']
     measurement_rate = quantum_parameters['decoherence_time']
